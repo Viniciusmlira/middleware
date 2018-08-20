@@ -27,7 +27,7 @@ public class FilosofoConsciente implements Runnable {
                     System.out.println(String.format("O filósofo %s devolveu o hashi a sua direita", nome));
                 } else {
                     esquerda.devolver();
-                    System.out.println(String.format("O filósofo %s devolveu o hashi a sua esquerda", nome));
+                    System.out.println(String.format("O filósofo %s devolveu o hashi a sua esquerda para evitar conflitos", nome));
                 }
             } while (pegouOsDois);
         } catch (InterruptedException interruped) {}

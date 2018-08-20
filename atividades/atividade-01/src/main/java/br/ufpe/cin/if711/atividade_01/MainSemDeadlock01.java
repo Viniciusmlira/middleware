@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class MainSemDeadlock {
-    private static final int NUMERO_FILOSOFOS = 2;
+public class MainSemDeadlock01 {
+    private static final int NUMERO_FILOSOFOS = 3;
 
     public static void main(String[] args) {
         final List<Hashi> hashis = IntStream.range(0, NUMERO_FILOSOFOS)
@@ -17,7 +17,7 @@ public class MainSemDeadlock {
         ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(NUMERO_FILOSOFOS);
         IntStream.range(0, NUMERO_FILOSOFOS)
                 .mapToObj(id -> construirFilosofo(id, hashis))
-                .forEach(filosofo -> scheduledExecutor.scheduleAtFixedRate(filosofo, 0L, 5L, TimeUnit.SECONDS));
+                .forEach(filosofo -> scheduledExecutor.scheduleWithFixedDelay(filosofo, 0L, 10L, TimeUnit.SECONDS));
     }
 
     private static Runnable construirFilosofo(int id, List<Hashi> hashis) {
