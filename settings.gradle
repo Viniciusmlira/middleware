@@ -1,0 +1,4 @@
+file('atividades').eachDir { dir ->
+    include dir.name
+    project(":$dir.name").projectDir = dir
+}
