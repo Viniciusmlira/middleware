@@ -11,18 +11,20 @@ type Client interface {
 	GetBool() bool
 	GetBoardString() string
 	SendMove(Pair)
+	Close()
 }
 
 type ClientWithBuffers struct {
 	Reader    *bufio.Reader
 	Writer    *bufio.Writer
 	delimiter byte
+	conn      net.Conn
 }
 
-func (c *ClientWithBuffers) GetBool() bool{
+func (c *ClientWithBuffers) GetBool() bool {
 	var b bool
-	str, err:= c.Reader.ReadString(c.delimiter)
-	if err!= nil {
+	str, err := c.Reader.ReadString(c.delimiter)
+	if err != nil {
 		panic(1)
 	}
 	//fmt.Println("got bol:",str)
@@ -33,7 +35,7 @@ func (c *ClientWithBuffers) GetBool() bool{
 	return b
 }
 
-func (c *ClientWithBuffers) GetBoardString() string{
+func (c *ClientWithBuffers) GetBoardString() string {
 	str, _ := c.Reader.ReadString(c.delimiter)
 	return strings.Trim(str, string(c.delimiter))
 }
@@ -45,11 +47,15 @@ func (c *ClientWithBuffers) SendMove(move Pair) {
 	c.Writer.Flush()
 }
 
-func NewClientWithBuffersFromConn(conn net.Conn, delim byte) Client{
+func NewClientWithBuffersFromConn(conn net.Conn, delim byte) Client {
 	return &ClientWithBuffers{
 		Reader:    bufio.NewReader(conn),
 		Writer:    bufio.NewWriter(conn),
 		delimiter: delim,
+		conn:      conn,
 	}
 }
 
+func (c *ClientWithBuffers) Close() {
+	c.conn.Close()
+}

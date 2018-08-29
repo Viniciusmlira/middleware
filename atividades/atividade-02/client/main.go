@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/dgmneto/middleware/atividades/atividade-02/helper"
 	"net"
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -25,6 +24,7 @@ func main()  {
 	for i := 0; i< 100; i++{
 		play(c)
 	}
+	c.Close()
 }
 
 func tcpClient() helper.Client {
@@ -73,7 +73,7 @@ func play(c helper.Client) {
 		if gameOver {
 			break
 		}
-		_ :=c.GetBoardString()
+		c.GetBoardString()
 		//str := c.GetBoardString()
 
 		//fmt.Println("board: ", str)

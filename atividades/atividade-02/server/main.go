@@ -2,7 +2,6 @@ package main
 
 import (
 	"net"
-	"bufio"
 	"fmt"
 	"github.com/dgmneto/middleware/atividades/atividade-02/helper"
 )
@@ -11,7 +10,7 @@ type stats struct {
 	player1, player2, tie int
 }
 
-func (s stats) inc(player int) {
+func (s *stats) inc(player int) {
 	if player == 1 {
 		s.player1++
 	} else if player == 2 {
@@ -20,7 +19,7 @@ func (s stats) inc(player int) {
 		s.tie ++
 	}
 }
-func (s stats) incTie() {
+func (s *stats) incTie() {
 	s.tie ++
 }
 
@@ -33,6 +32,12 @@ func main() {
 	for i := 1; i < 3; i++ {
 		players[i] = <-playerChan
 	}
+
+	defer func() {
+		for _, players:= range players{
+			players.Close()
+		}
+	}()
 
 	for i:=0; i<100; i++{
 		playGame(players)
@@ -99,11 +104,7 @@ func getPlayersTCP(c chan helper.Player) {
 		if err != nil {
 			panic(2)
 		}
-		p := &helper.PlayerWithBuffers{
-			Reader: bufio.NewReader(conn),
-			Writer: bufio.NewWriter(conn),
-			Delimiter: ';',
-		}
+		p := helper.NewPlayerWithBuffers(conn, ';')
 		c <- p
 	}
 }
@@ -126,30 +127,46 @@ func getPlayersUDP(c chan helper.Player) {
 	m := make(map[int]*helper.PlayerUdp)
 
 	outChan := make(chan helper.UdpMessage)
-	go sendUdpMessages(outChan, ServerConn)
+
+	closeChan := make(chan bool, 1)
+	go sendUdpMessages(outChan, ServerConn, closeChan)
 
 	for {
-		n,addr,err := ServerConn.ReadFromUDP(buf)
-		//fmt.Println("Received ",string(buf[0:n]), " from ",addr)
+		select {
+		case _ = <- closeChan:
+			ServerConn.Close()
+			break
+		default:
+			n,addr,err := ServerConn.ReadFromUDP(buf)
+			//fmt.Println("Received ",string(buf[0:n]), " from ",addr)
 
-		if err != nil {
-			panic(err)
-		}
-		player, ok := m[addr.Port]
-		if !ok {
-			player = helper.NewPlayerUdp(addr, outChan , make(chan string), ';')
-			m[addr.Port] = player
-			c <- player
-		} else{
-			player.InChan <- string(buf[0:n])
+			if err != nil {
+				panic(err)
+			}
+			player, ok := m[addr.Port]
+			if !ok {
+				player = helper.NewPlayerUdp(addr, outChan , make(chan string), ';')
+				m[addr.Port] = player
+				c <- player
+			} else{
+				player.InChan <- string(buf[0:n])
+			}
 		}
 	}
 }
 
-func sendUdpMessages(c chan helper.UdpMessage, conn *net.UDPConn) {
+func sendUdpMessages(c chan helper.UdpMessage, conn *net.UDPConn, close chan bool) {
 	for {
 		message := <-c
 		//fmt.Println(message)
-		conn.WriteTo([]byte(message.Str),message.Addr)
+		if message.Addr == nil {
+			close<-true
+			break
+		} else {
+			conn.WriteTo([]byte(message.Str),message.Addr)
+		}
+	}
+	for {
+		<-c
 	}
 }
