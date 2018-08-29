@@ -4,7 +4,6 @@ import (
 	"strings"
 	"strconv"
 	"bytes"
-	"fmt"
 )
 
 type Pair struct {
@@ -16,7 +15,7 @@ func NewPair(x, y int) Pair{
 }
 
 func PairFromByteArray(in []byte) Pair {
-	fmt.Println("recieved:" + string(in))
+	//fmt.Println("recieved:" + string(in))
 	ints := strings.Split(string(in), " ")
 	x, _:= strconv.Atoi(ints[0])
 	y, _:= strconv.Atoi(ints[1])

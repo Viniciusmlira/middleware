@@ -2,7 +2,6 @@ package helper
 
 import (
 	"bufio"
-	"fmt"
 	"net"
 	"strings"
 	"strconv"
@@ -26,7 +25,7 @@ func (c *ClientWithBuffers) GetBool() bool{
 	if err!= nil {
 		panic(1)
 	}
-	fmt.Println("got bol:",str)
+	//fmt.Println("got bol:",str)
 	b, err = strconv.ParseBool(strings.Trim(str, string(c.delimiter)))
 	if err != nil {
 		panic(1)
@@ -40,7 +39,7 @@ func (c *ClientWithBuffers) GetBoardString() string{
 }
 
 func (c *ClientWithBuffers) SendMove(move Pair) {
-	fmt.Println("xallaa:", move)
+	//fmt.Println("xallaa:", move)
 	str := move.ToByteArray()
 	c.Writer.Write(append(str, c.delimiter))
 	c.Writer.Flush()

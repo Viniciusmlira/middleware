@@ -4,7 +4,6 @@ import (
 	"net"
 	"bufio"
 	"fmt"
-	"time"
 	"github.com/dgmneto/middleware/atividades/atividade-02/helper"
 )
 
@@ -29,7 +28,7 @@ var statistics stats
 
 func main() {
 	playerChan := make(chan helper.Player)
-	go getPlayersTCP(playerChan)
+	go getPlayersUDP(playerChan)
 	players := make(map[int]helper.Player)
 	for i := 1; i < 3; i++ {
 		players[i] = <-playerChan
@@ -47,7 +46,7 @@ func playGame(players map[int]helper.Player) {
 	hasWinner := false
 	for i := 0; i<9 && !hasWinner; i++ {
 		playerIdx := 1 + (i%2)
-		time.Sleep(500 * time.Millisecond)
+		//time.Sleep(500 * time.Millisecond)
 		p := players[playerIdx]
 		p.SendBool(false) // send that game is not over
 		p.SendBoard(board)
@@ -62,12 +61,11 @@ func playGame(players map[int]helper.Player) {
 			statistics.inc(playerIdx)
 			break
 		}
-		fmt.Println(board)
+		//fmt.Println(board)
 	}
-	fmt.Println("saiu!!!!")
 	for i, p := range players {
 		if i != winner {
-			fmt.Println()
+			//fmt.Println()
 			p.SendBool(true)      // send that game is over
 			p.SendBool(hasWinner) // send if player lost
 		}
@@ -85,7 +83,7 @@ func getValidMove(board helper.Board,p helper.Player) helper.Pair {
 		validMove = board.Valid(move)
 		p.SendBool(validMove)
 	}
-	fmt.Println("move: ",move)
+	//fmt.Println("move: ",move)
 	return move
 }
 
@@ -107,5 +105,51 @@ func getPlayersTCP(c chan helper.Player) {
 			Delimiter: ';',
 		}
 		c <- p
+	}
+}
+
+func getPlayersUDP(c chan helper.Player) {
+	ServerAddr, err := net.ResolveUDPAddr("udp",":8083")
+	if err != nil {
+		panic(err)
+	}
+
+	/* Now listen at selected port */
+	ServerConn, err := net.ListenUDP("udp", ServerAddr)
+	if err != nil {
+		panic(err)
+	}
+	defer ServerConn.Close()
+
+	buf := make([]byte, 1024)
+
+	m := make(map[int]*helper.PlayerUdp)
+
+	outChan := make(chan helper.UdpMessage)
+	go sendUdpMessages(outChan, ServerConn)
+
+	for {
+		n,addr,err := ServerConn.ReadFromUDP(buf)
+		//fmt.Println("Received ",string(buf[0:n]), " from ",addr)
+
+		if err != nil {
+			panic(err)
+		}
+		player, ok := m[addr.Port]
+		if !ok {
+			player = helper.NewPlayerUdp(addr, outChan , make(chan string), ';')
+			m[addr.Port] = player
+			c <- player
+		} else{
+			player.InChan <- string(buf[0:n])
+		}
+	}
+}
+
+func sendUdpMessages(c chan helper.UdpMessage, conn *net.UDPConn) {
+	for {
+		message := <-c
+		//fmt.Println(message)
+		conn.WriteTo([]byte(message.Str),message.Addr)
 	}
 }
