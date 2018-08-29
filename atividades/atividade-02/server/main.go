@@ -2,18 +2,11 @@ package main
 
 import (
 	"net"
-	"github.com/ccal1/middleware/helper"
-	"github.com/ccal1/middleware/player"
 	"bufio"
 	"fmt"
 	"time"
+	"github.com/dgmneto/middleware/atividades/atividade-02/helper"
 )
-
-//type player struct {
-//	moveReceiver chan helper.Pair
-//	boardSender  chan helper.Board
-//	boolSender   chan bool
-//}
 
 type stats struct {
 	player1, player2, tie int
@@ -35,9 +28,9 @@ func (s stats) incTie() {
 var statistics stats
 
 func main() {
-	playerChan := make(chan player.Player)
+	playerChan := make(chan helper.Player)
 	go getPlayersTCP(playerChan)
-	players := make(map[int]player.Player)
+	players := make(map[int]helper.Player)
 	for i := 1; i < 3; i++ {
 		players[i] = <-playerChan
 	}
@@ -48,7 +41,7 @@ func main() {
 	fmt.Println(statistics)
 }
 
-func playGame(players map[int]player.Player) {
+func playGame(players map[int]helper.Player) {
 	board := helper.Board{}
 	var winner int
 	hasWinner := false
@@ -84,7 +77,7 @@ func playGame(players map[int]player.Player) {
 	}
 }
 
-func getValidMove(board helper.Board,p player.Player) helper.Pair {
+func getValidMove(board helper.Board,p helper.Player) helper.Pair {
 	validMove := false
 	var move helper.Pair
 	for !validMove{
@@ -96,7 +89,7 @@ func getValidMove(board helper.Board,p player.Player) helper.Pair {
 	return move
 }
 
-func getPlayersTCP(c chan player.Player) {
+func getPlayersTCP(c chan helper.Player) {
 	ln, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		panic(1)
@@ -108,7 +101,7 @@ func getPlayersTCP(c chan player.Player) {
 		if err != nil {
 			panic(2)
 		}
-		p := &player.PlayerWithBuffers{
+		p := &helper.PlayerWithBuffers{
 			Reader: bufio.NewReader(conn),
 			Writer: bufio.NewWriter(conn),
 			Delimiter: ';',
@@ -116,24 +109,3 @@ func getPlayersTCP(c chan player.Player) {
 		c <- p
 	}
 }
-//
-//func handleConnection(conn net.Conn, p player) {
-//
-//	select {
-//	case msg1 := <-p.boolSender:
-//		fmt.Println("sending", msg1)
-//		conn.Write(strconv.AppendBool([]byte{}, msg1))
-//	}
-//
-//	go getMesseges(conn, p.moveReceiver)
-//
-//}
-//
-//func getMesseges(conn net.Conn, c chan helper.Pair) {
-//	for {
-//		str := make([]byte, 9)
-//		conn.Read(str)
-//		pair := helper.PairFromByteArray(str)
-//		c <- pair
-//	}
-//}
