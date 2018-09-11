@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 	"fmt"
+	"time"
 	"github.com/dgmneto/middleware/atividades/atividade-02/helper"
 )
 
@@ -39,13 +40,19 @@ func main() {
 		}
 	}()
 
+	logger := &Timer{0}
+
 	for i:=0; i<100; i++{
-		playGame(players)
+		playGame(players, logger)
+
 	}
+	fmt.Printf("%d\n", int64(logger.Elapsed/time.Millisecond))
+
+
 	fmt.Println(statistics)
 }
 
-func playGame(players map[int]helper.Player) {
+func playGame(players map[int]helper.Player, logger *Timer) {
 	board := helper.Board{}
 	var winner int
 	hasWinner := false
@@ -54,9 +61,13 @@ func playGame(players map[int]helper.Player) {
 		//time.Sleep(500 * time.Millisecond)
 		p := players[playerIdx]
 		p.SendBool(false) // send that game is not over
-		p.SendBoard(board)
 
+		start := time.Now()
+		p.SendBoard(board)
 		move := getValidMove(board, p)
+		end := time.Now()
+		logger.Count(start, end)
+
 		board.SetPlayer(move, playerIdx)
 		win := board.CheckWin(playerIdx)
 		hasWinner = win
@@ -71,8 +82,11 @@ func playGame(players map[int]helper.Player) {
 	for i, p := range players {
 		if i != winner {
 			//fmt.Println()
+			start := time.Now()
 			p.SendBool(true)      // send that game is over
 			p.SendBool(hasWinner) // send if player lost
+			end := time.Now()
+			logger.Count(start, end)
 		}
 	}
 	if !hasWinner {
