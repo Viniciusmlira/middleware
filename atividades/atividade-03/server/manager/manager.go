@@ -31,4 +31,15 @@ func PlayGame(manager *Manager) {
 
 		manager.Board.MakeMove(response.Move, (i%2)+1)
 	}
+
+	request := &player.EndGameRequest{manager.Board.GameOver()}
+	var response player.EndGameResponse
+
+	for i := 0; i < 2; i++{
+		err := manager.Players[i].Call("Player.EndGameEndpoint", request, &response)
+		if err != nil {
+			fmt.Printf("dialing: %s", err.Error())
+			break
+		}
+	}	
 }

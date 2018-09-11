@@ -1,6 +1,7 @@
 package player
 
 import (
+	"fmt"
 	"github.com/dgmneto/middleware/atividades/atividade-03/game"
 )
 
@@ -23,6 +24,19 @@ func (p *Player) MakeMoveEndpoint(request *MakeMoveRequest, response *MakeMoveRe
 	}
 
 	response.Move = move
+	return nil
+}
+
+type EndGameRequest struct{
+	Winner int
+}
+
+type EndGameResponse struct{
+
+}
+
+func (p *Player) EndGameEndpoint(request *EndGameRequest, response *EndGameResponse) error {
+	fmt.Printf("Game Over. Winner: %d\n", request.Winner)
 	return nil
 }
 
