@@ -2,6 +2,7 @@ package br.ufpr.cin.if711.atividade_04.client;
 
 import br.ufpr.cin.if711.atividade_04.client.handler.ClientRequestHandler;
 import br.ufpr.cin.if711.atividade_04.client.handler.ClientRequestHandlerImpl;
+import br.ufpr.cin.if711.atividade_04.client.handler.ClientRequestHandlerImpl2;
 import br.ufpr.cin.if711.atividade_04.handler.types.HandlerType;
 import br.ufpr.cin.if711.atividade_04.utils.secret.Secrets;
 
@@ -24,13 +25,13 @@ public class Client {
         System.out.println(Arrays.stream(HandlerType.values())
                 .map(Objects::toString)
                 .collect(Collectors.joining(",")));
-        while (true) {
+        for (int count = 0; count < 10_000; ++count) {
             for (int i = 0; i < handlers.size(); ++i) {
-                long startTime = System.currentTimeMillis();
+                long startTime = System.nanoTime();
                 handlers.get(i).send(message);
                 byte[] received = handlers.get(i).receive();
                 if (i > 0) System.out.print(',');
-                System.out.print(System.currentTimeMillis() - startTime);
+                System.out.print((System.nanoTime() - startTime) / 1e6);
                 System.out.flush();
             }
             System.out.println();

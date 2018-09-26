@@ -1,7 +1,6 @@
 package br.ufpr.cin.if711.atividade_04.client.handler;
 
 import br.ufpr.cin.if711.atividade_04.handler.types.HandlerType;
-import br.ufpr.cin.if711.atividade_04.server.handler.ServerRequestHandler;
 import br.ufpr.cin.if711.atividade_04.utils.configs.Config;
 import br.ufpr.cin.if711.atividade_04.utils.secret.Secrets;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -15,18 +14,21 @@ import org.apache.kafka.common.serialization.Serializer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
-public class ClientRequestHandlerImpl implements ClientRequestHandler {
+public class ClientRequestHandlerImpl2 implements ClientRequestHandler {
     private static final Deserializer<byte[]> deserializer = Serdes.ByteArray().deserializer();
     private static final Serializer<byte[]> serializer = Serdes.ByteArray().serializer();
     private final ClientRequestHandler innerHandler;
 
-    public ClientRequestHandlerImpl(HandlerType handlerType) throws Exception {
+    public ClientRequestHandlerImpl2(HandlerType handlerType) throws Exception {
         this.innerHandler = buildInnerRequestHandler(handlerType);
     }
 
@@ -41,29 +43,46 @@ public class ClientRequestHandlerImpl implements ClientRequestHandler {
     }
 
     private class TCPClientRequestHandler implements ClientRequestHandler {
-        private final Socket socket;
-        private final DataInputStream dataInputStream;
-        private final DataOutputStream dataOutputStream;
+        private final int port;
+
+        private Socket socket;
+        private DataInputStream dataInputStream;
+        private DataOutputStream dataOutputStream;
 
         TCPClientRequestHandler(int port) throws IOException {
-            this.socket = new Socket("localhost", port);
-            this.dataInputStream = new DataInputStream(socket.getInputStream());
-            this.dataOutputStream = new DataOutputStream(socket.getOutputStream());
+            this.port = port;
         }
 
         @Override
         public byte[] receive() throws Exception {
+            connect();
             int size = dataInputStream.readInt();
             byte[] bytes = new byte[size];
             dataInputStream.readFully(bytes, 0, size);
+            disconnect();
             return bytes;
         }
 
         @Override
         public void send(byte[] message) throws Exception {
+            connect();
             dataOutputStream.writeInt(message.length);
             dataOutputStream.write(message, 0, message.length);
             dataOutputStream.flush();
+            disconnect();
+        }
+
+        private void connect() throws IOException {
+            this.socket = new Socket("localhost", port);
+            this.dataInputStream = new DataInputStream(socket.getInputStream());
+            this.dataOutputStream = new DataOutputStream(socket.getOutputStream());
+        }
+
+        private void disconnect() throws IOException {
+            this.socket.close();
+            this.socket = null;
+            this.dataOutputStream = null;
+            this.dataInputStream = null;
         }
     }
 

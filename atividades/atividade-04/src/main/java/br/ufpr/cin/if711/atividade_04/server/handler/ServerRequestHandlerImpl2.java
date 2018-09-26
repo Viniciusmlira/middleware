@@ -11,17 +11,20 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
-public class ServerRequestHandlerImpl implements ServerRequestHandler {
+public class ServerRequestHandlerImpl2 implements ServerRequestHandler {
     private final ServerRequestHandler innerHandler;
 
-    public ServerRequestHandlerImpl(HandlerType handlerType) throws Exception {
+    public ServerRequestHandlerImpl2(HandlerType handlerType) throws Exception {
         this.innerHandler = buildInnerRequestHandler(handlerType);
     }
 
@@ -36,30 +39,46 @@ public class ServerRequestHandlerImpl implements ServerRequestHandler {
     }
 
     private class TCPServerRequestHandler implements ServerRequestHandler {
-        private final Socket socket;
-        private final DataInputStream dataInputStream;
-        private final DataOutputStream dataOutputStream;
+        private final ServerSocket serverSocket;
+
+        private Socket socket;
+        private DataInputStream dataInputStream;
+        private DataOutputStream dataOutputStream;
 
         TCPServerRequestHandler(int port) throws IOException {
-            ServerSocket serverSocket = new ServerSocket(port);
-            this.socket = serverSocket.accept();
-            this.dataInputStream = new DataInputStream(socket.getInputStream());
-            this.dataOutputStream = new DataOutputStream(socket.getOutputStream());
+            this.serverSocket = new ServerSocket(port);
         }
 
         @Override
         public byte[] receive() throws Exception {
+            connect();
             final int msgSize = dataInputStream.readInt();
             byte[] msg = new byte[msgSize];
             dataInputStream.readFully(msg, 0, msgSize);
+            disconnect();
             return msg;
         }
 
         @Override
         public void send(byte[] message) throws Exception {
+            connect();
             this.dataOutputStream.writeInt(message.length);
             this.dataOutputStream.write(message, 0, message.length);
             this.dataOutputStream.flush();
+            disconnect();
+        }
+
+        private void connect() throws IOException {
+            this.socket = serverSocket.accept();
+            this.dataInputStream = new DataInputStream(socket.getInputStream());
+            this.dataOutputStream = new DataOutputStream(socket.getOutputStream());
+        }
+
+        private void disconnect() throws IOException {
+            this.socket.close();
+            this.dataInputStream = null;
+            this.dataOutputStream = null;
+            this.socket = null;
         }
     }
 
