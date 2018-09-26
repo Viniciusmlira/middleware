@@ -1,6 +1,5 @@
 package br.ufpr.cin.if711.atividade_04.server.handler;
 
-import br.ufpe.cin.if711.atividade_04.avro.models.Message;
 import br.ufpr.cin.if711.atividade_04.handler.types.HandlerType;
 import br.ufpr.cin.if711.atividade_04.utils.configs.Config;
 import br.ufpr.cin.if711.atividade_04.utils.secret.Secrets;
@@ -8,9 +7,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.Serializer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -154,8 +150,7 @@ public class ServerRequestHandlerImpl implements ServerRequestHandler {
 
     private ServerRequestHandler buildInnerRequestHandler(HandlerType handlerType) throws Exception {
         switch (handlerType) {
-//            case TCP: return new TCPServerRequestHandler(Config.TCP_PORT);
-            case TCP: return new UDPServerRequestHandler(Config.TCP_PORT);
+            case TCP: return new TCPServerRequestHandler(Config.TCP_PORT);
             case UDP: return new UDPServerRequestHandler(Config.UDP_PORT);
             case MIDDLEWARE: return new MiddlewareRequestHandler(Config.SERVER_TOPIC);
         }

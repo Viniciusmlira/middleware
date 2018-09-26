@@ -151,7 +151,7 @@ public class ClientRequestHandlerImpl implements ClientRequestHandler {
 
     private ClientRequestHandler buildInnerRequestHandler(HandlerType handlerType) throws Exception {
         switch (handlerType) {
-            case TCP: return new UDPClientRequestHandler(Config.TCP_PORT);
+            case TCP: return new TCPClientRequestHandler(Config.TCP_PORT);
             case UDP: return new UDPClientRequestHandler(Config.UDP_PORT);
             case MIDDLEWARE: return new MiddlewareClientRequestHandler(Config.CLIENT_TOPIC, Config.SERVER_TOPIC);
         }
