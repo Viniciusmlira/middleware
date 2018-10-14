@@ -9,14 +9,16 @@ public class Client {
         namingProxy.setPort(11111);
 
         TimeProxy timeProxy = (TimeProxy) namingProxy.lookup("time");
-        System.out.println("Lookup done");
 
         if(timeProxy == null) {
             System.out.println("Couldn't find service");
             return;
         }
 
-        float result = timeProxy.lag(System.nanoTime());
-    System.out.println(result);
+        for (int i = 0; i < 1_000_000; ++i) {
+            long start = System.nanoTime();
+            timeProxy.lag(System.nanoTime());
+            System.out.println(System.nanoTime() - start);
+        }
     }
 }

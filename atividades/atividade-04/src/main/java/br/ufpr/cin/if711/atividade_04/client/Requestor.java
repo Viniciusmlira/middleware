@@ -1,7 +1,7 @@
 package br.ufpr.cin.if711.atividade_04.client;
 
-import br.ufpr.cin.if711.atividade_04.client.handler.ClientRequestHandler;
-import br.ufpr.cin.if711.atividade_04.client.handler.ClientRequestHandlerImpl;
+import br.ufpr.cin.if711.atividade_04.handler.ClientRequestHandler;
+import br.ufpr.cin.if711.atividade_04.handler.impl.ClientRequestHandlerImpl;
 import br.ufpr.cin.if711.atividade_04.common.Marshaller;
 import br.ufpr.cin.if711.atividade_04.common.Message;
 import br.ufpr.cin.if711.atividade_04.common.MessageBody;
@@ -9,12 +9,18 @@ import br.ufpr.cin.if711.atividade_04.common.MessageHeader;
 import br.ufpr.cin.if711.atividade_04.common.ReplyBody;
 import br.ufpr.cin.if711.atividade_04.common.RequestBody;
 import br.ufpr.cin.if711.atividade_04.common.RequestHeader;
-import br.ufpr.cin.if711.atividade_04.utils.configs.Config;
+
+import java.io.IOException;
 
 
 public class Requestor {
+  private final ClientRequestHandler crh;
+
+  public Requestor(int port) throws IOException {
+    this.crh = new ClientRequestHandlerImpl(port);
+  }
+
   public Object invoke(Invocation inv) throws Exception {
-    ClientRequestHandler crh = new ClientRequestHandlerImpl(inv.getIpAddress(), inv.getPortNumber());
     Marshaller marshaller = new Marshaller();
 
     RequestHeader requestHeader = RequestHeader.builder().context("").requestId(0).responseExpected(true).objectKey(inv.getObjectId()).operation(inv.getOperationName()).build();

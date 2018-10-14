@@ -15,7 +15,7 @@ public class NamingProxy extends ClientProxy implements INaming {
   public void bind(String serviceName, ClientProxy clientProxy) throws UnknownHostException, IOException, Throwable {
     ArrayList<Object> parameters = new ArrayList<Object>();
     class Local {};
-    Requestor requestor = new Requestor();
+    Requestor requestor = new Requestor(this.getPort());
 
     String methodName = Local.class.getEnclosingMethod().getName();
     parameters.add(serviceName);
@@ -32,12 +32,11 @@ public class NamingProxy extends ClientProxy implements INaming {
     requestor.invoke(inv);
   }
 
-  public ClientProxy lookup(String serviceName) throws UnknownHostException, IOException, Throwable {
+  public ClientProxy lookup(String serviceName) throws Throwable {
     ArrayList<Object> parameters = new ArrayList<Object>();
-    class Local {};
-    Requestor requestor = new Requestor();
+    Requestor requestor = new Requestor(this.getPort());
 
-    String methodName = Local.class.getEnclosingMethod().getName();
+    String methodName = "lookup";
     parameters.add(serviceName);
 
     Invocation inv = Invocation.builder()
@@ -51,10 +50,9 @@ public class NamingProxy extends ClientProxy implements INaming {
   }
 
   public List<String> list() throws UnknownHostException, IOException, Throwable {
-    class Local {};
-    Requestor requestor = new Requestor();
+    Requestor requestor = new Requestor(this.getPort());
 
-    String methodName = Local.class.getEnclosingMethod().getName();
+    String methodName = "list";
 
     Invocation inv = Invocation.builder()
         .ipAddress(this.getHost())

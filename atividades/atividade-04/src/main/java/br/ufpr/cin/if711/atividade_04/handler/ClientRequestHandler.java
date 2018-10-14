@@ -1,4 +1,4 @@
-package br.ufpr.cin.if711.atividade_04.client.handler;
+package br.ufpr.cin.if711.atividade_04.handler;
 
 import br.ufpr.cin.if711.atividade_04.handler.RequestHandler;
 

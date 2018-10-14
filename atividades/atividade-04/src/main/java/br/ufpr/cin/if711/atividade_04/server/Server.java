@@ -2,18 +2,6 @@ package br.ufpr.cin.if711.atividade_04.server;
 
 import br.ufpr.cin.if711.atividade_04.client.TimeProxy;
 import br.ufpr.cin.if711.atividade_04.common.NamingProxy;
-import br.ufpr.cin.if711.atividade_04.handler.types.HandlerType;
-import br.ufpr.cin.if711.atividade_04.server.handler.ServerRequestHandler;
-import br.ufpr.cin.if711.atividade_04.server.handler.ServerRequestHandlerImpl;
-import br.ufpr.cin.if711.atividade_04.server.handler.ServerRequestHandlerImpl2;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 public class Server {
 
