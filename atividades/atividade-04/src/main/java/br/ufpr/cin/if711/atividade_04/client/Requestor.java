@@ -6,6 +6,7 @@ import br.ufpr.cin.if711.atividade_04.common.Marshaller;
 import br.ufpr.cin.if711.atividade_04.common.Message;
 import br.ufpr.cin.if711.atividade_04.common.MessageBody;
 import br.ufpr.cin.if711.atividade_04.common.MessageHeader;
+import br.ufpr.cin.if711.atividade_04.common.ReplyBody;
 import br.ufpr.cin.if711.atividade_04.common.RequestBody;
 import br.ufpr.cin.if711.atividade_04.common.RequestHeader;
 import br.ufpr.cin.if711.atividade_04.utils.configs.Config;
@@ -28,6 +29,7 @@ public class Requestor {
     byte[] msgToBeUnmarshalled = crh.receive();
     Message msgUnmarshalled = marshaller.unmarshall(msgToBeUnmarshalled);
 
-    return msgUnmarshalled.getBody().getReplyBody().getOperationResult();
+    final ReplyBody replyBody = msgUnmarshalled.getBody().getReplyBody();
+    return replyBody.getOperationResult();
   }
 }

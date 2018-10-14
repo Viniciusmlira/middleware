@@ -45,7 +45,7 @@ public class Invoker {
                       .requestId(0)
                       .serviceContext("")
                       .replyStatus(0)
-                      .build())
+                      .build()).replyBody(new ReplyBody(null))
                   .build())
               .build();
           msgMarshalled = marshaller.marshall(bindMsgToBeMarshalled);
