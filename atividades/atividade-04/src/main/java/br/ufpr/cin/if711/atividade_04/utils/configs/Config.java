@@ -1,5 +1,6 @@
 package br.ufpr.cin.if711.atividade_04.utils.configs;
 
+import br.ufpr.cin.if711.atividade_04.handler.types.HandlerType;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serializer;
@@ -8,6 +9,7 @@ import java.util.Properties;
 
 public class Config {
     public static final int TCP_PORT = 10200;
+    public static final int TCP_NAMING_PORT = 10400;
     public static final int UDP_PORT = 10300;
     public static final String SERVER_TOPIC = "server-topic";
     public static final String CLIENT_TOPIC = "client-topic";
@@ -18,5 +20,9 @@ public class Config {
         Properties properties = new Properties();
         properties.setProperty("bootstrap.servers", "localhost:9092");
         return properties;
+    }
+
+    public static HandlerType getHandlerType() {
+      return HandlerType.TCP;
     }
 }

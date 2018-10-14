@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
+import org.omg.PortableServer.POA;
 
 public class ClientRequestHandlerImpl implements ClientRequestHandler {
     private static final Deserializer<byte[]> deserializer = Serdes.ByteArray().deserializer();
@@ -28,6 +29,10 @@ public class ClientRequestHandlerImpl implements ClientRequestHandler {
 
     public ClientRequestHandlerImpl(HandlerType handlerType) throws Exception {
         this.innerHandler = buildInnerRequestHandler(handlerType);
+    }
+
+    public ClientRequestHandlerImpl(String host, int port) throws Exception {
+        this.innerHandler = new TCPClientRequestHandler(port);
     }
 
     @Override

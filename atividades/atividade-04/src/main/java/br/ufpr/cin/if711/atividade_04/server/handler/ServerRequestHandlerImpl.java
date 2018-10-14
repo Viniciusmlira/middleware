@@ -25,6 +25,10 @@ public class ServerRequestHandlerImpl implements ServerRequestHandler {
         this.innerHandler = buildInnerRequestHandler(handlerType);
     }
 
+    public ServerRequestHandlerImpl(String host, int port) throws Exception {
+        this.innerHandler = new TCPServerRequestHandler(port);
+    }
+
     @Override
     public byte[] receive() throws Exception {
         return innerHandler.receive();
@@ -150,6 +154,7 @@ public class ServerRequestHandlerImpl implements ServerRequestHandler {
     private ServerRequestHandler buildInnerRequestHandler(HandlerType handlerType) throws Exception {
         switch (handlerType) {
             case TCP: return new TCPServerRequestHandler(Config.TCP_PORT);
+            case TCP_NAMING: return  new TCPServerRequestHandler(Config.TCP_NAMING_PORT);
             case UDP: return new UDPServerRequestHandler(Config.UDP_PORT);
             case MIDDLEWARE: return new MiddlewareRequestHandler(Config.SERVER_TOPIC);
         }
